@@ -1,0 +1,16 @@
+name: olist_pipeline
+version: '1.0'
+profile: olist_pipeline
+config-version: 2
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+models:
+  olist_pipeline:
+    staging:
+      +materialized: view    # staging models are views — always fresh, no storage cost
+    marts:
+      +materialized: table   # mart models are tables — pre-computed for fast query performance
