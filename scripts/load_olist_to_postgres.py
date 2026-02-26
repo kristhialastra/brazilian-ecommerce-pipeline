@@ -152,12 +152,12 @@ def validate_row_counts():
 # ---------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    # Default CSV directory: the olist folder inside the Airflow datasets volume
-    # Adjust this path if your CSVs are in a different location
-    DEFAULT_CSV_DIR = (
-        r'C:\Users\i_kristhiacayle.last\Documents'
-        r'\data-engineering-bootcamp\airflow\datasets\olist'
-    )
+    # Default to the datasets/ folder at the project root.
+    # This folder contains the committed Olist CSVs and is portable across machines.
+    # Override by passing a path as the first argument: python scripts/load_olist_to_postgres.py /path/to/csvs
+    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+    DEFAULT_CSV_DIR = os.path.join(PROJECT_ROOT, 'datasets')
 
     csv_dir = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_CSV_DIR
 
