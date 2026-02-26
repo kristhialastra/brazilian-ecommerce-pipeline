@@ -1,0 +1,66 @@
+3de326cfd649
+*** Found local files:
+***   * /opt/airflow/logs/dag_id=olist_pipeline_dag/run_id=manual__2026-02-26T06:34:26.864476+00:00/task_id=dbt_run/attempt=1.log
+[2026-02-26T06:35:13.848+0000] {logging_mixin.py:188} INFO - Changing /opt/***/logs/dag_id=olist_pipeline_dag/run_id=manual__2026-02-26T06:34:26.864476+00:00/task_id=dbt_run permission to 509
+[2026-02-26T06:35:13.849+0000] {logging_mixin.py:188} INFO - Failed to change /opt/***/logs/dag_id=olist_pipeline_dag/run_id=manual__2026-02-26T06:34:26.864476+00:00/task_id=dbt_run permission to 509: [Errno 1] Operation not permitted: '/opt/***/logs/dag_id=olist_pipeline_dag/run_id=manual__2026-02-26T06:34:26.864476+00:00/task_id=dbt_run'
+[2026-02-26T06:35:13.872+0000] {logging_mixin.py:188} INFO - Changing /opt/***/logs/dag_id=olist_pipeline_dag/run_id=manual__2026-02-26T06:34:26.864476+00:00/task_id=dbt_run permission to 509
+[2026-02-26T06:35:13.873+0000] {logging_mixin.py:188} INFO - Failed to change /opt/***/logs/dag_id=olist_pipeline_dag/run_id=manual__2026-02-26T06:34:26.864476+00:00/task_id=dbt_run permission to 509: [Errno 1] Operation not permitted: '/opt/***/logs/dag_id=olist_pipeline_dag/run_id=manual__2026-02-26T06:34:26.864476+00:00/task_id=dbt_run'
+[2026-02-26T06:35:13.903+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: olist_pipeline_dag.dbt_run manual__2026-02-26T06:34:26.864476+00:00 [queued]>
+[2026-02-26T06:35:13.910+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: olist_pipeline_dag.dbt_run manual__2026-02-26T06:34:26.864476+00:00 [queued]>
+[2026-02-26T06:35:13.910+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-02-26T06:35:13.921+0000] {taskinstance.py:2191} INFO - Executing <Task(BashOperator): dbt_run> on 2026-02-26 06:34:26.864476+00:00
+[2026-02-26T06:35:13.927+0000] {standard_task_runner.py:60} INFO - Started process 875 to run task
+[2026-02-26T06:35:13.930+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'olist_pipeline_dag', 'dbt_run', 'manual__2026-02-26T06:34:26.864476+00:00', '--job-id', '1849', '--raw', '--subdir', 'DAGS_FOLDER/olist_pipeline_dag.py', '--cfg-path', '/tmp/tmptxs4mv0s']
+[2026-02-26T06:35:13.932+0000] {standard_task_runner.py:88} INFO - Job 1849: Subtask dbt_run
+[2026-02-26T06:35:13.945+0000] {logging_mixin.py:188} WARNING - /home/***/.local/lib/python3.8/site-packages/***/settings.py:194 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.
+[2026-02-26T06:35:13.973+0000] {logging_mixin.py:188} INFO - Changing /opt/***/logs/dag_id=olist_pipeline_dag/run_id=manual__2026-02-26T06:34:26.864476+00:00/task_id=dbt_run permission to 509
+[2026-02-26T06:35:13.973+0000] {logging_mixin.py:188} INFO - Failed to change /opt/***/logs/dag_id=olist_pipeline_dag/run_id=manual__2026-02-26T06:34:26.864476+00:00/task_id=dbt_run permission to 509: [Errno 1] Operation not permitted: '/opt/***/logs/dag_id=olist_pipeline_dag/run_id=manual__2026-02-26T06:34:26.864476+00:00/task_id=dbt_run'
+[2026-02-26T06:35:13.978+0000] {task_command.py:423} INFO - Running <TaskInstance: olist_pipeline_dag.dbt_run manual__2026-02-26T06:34:26.864476+00:00 [running]> on host 3de326cfd649
+[2026-02-26T06:35:14.172+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='olist_pipeline_dag' AIRFLOW_CTX_TASK_ID='dbt_run' AIRFLOW_CTX_EXECUTION_DATE='2026-02-26T06:34:26.864476+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-02-26T06:34:26.864476+00:00'
+[2026-02-26T06:35:14.174+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2026-02-26T06:35:14.174+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', 'dbt run --project-dir /opt/***/dbt --profiles-dir /opt/***/dbt']
+[2026-02-26T06:35:14.185+0000] {subprocess.py:86} INFO - Output:
+[2026-02-26T06:35:16.756+0000] {subprocess.py:93} INFO - [0m06:35:16  Running with dbt=1.7.6
+[2026-02-26T06:35:17.046+0000] {subprocess.py:93} INFO - [0m06:35:17  Registered adapter: postgres=1.7.6
+[2026-02-26T06:35:17.968+0000] {subprocess.py:93} INFO - [0m06:35:17  Found 14 models, 9 sources, 0 exposures, 0 metrics, 517 macros, 0 groups, 0 semantic models
+[2026-02-26T06:35:17.971+0000] {subprocess.py:93} INFO - [0m06:35:17
+[2026-02-26T06:35:18.068+0000] {subprocess.py:93} INFO - [0m06:35:18  Concurrency: 2 threads (target='dev')
+[2026-02-26T06:35:18.070+0000] {subprocess.py:93} INFO - [0m06:35:18
+[2026-02-26T06:35:18.080+0000] {subprocess.py:93} INFO - [0m06:35:18  1 of 14 START sql table model olist_staging.dim_date ........................... [RUN]
+[2026-02-26T06:35:18.082+0000] {subprocess.py:93} INFO - [0m06:35:18  2 of 14 START sql view model olist_staging.stg_customers ....................... [RUN]
+[2026-02-26T06:35:18.479+0000] {subprocess.py:93} INFO - [0m06:35:18  2 of 14 OK created sql view model olist_staging.stg_customers .................. [[32mCREATE VIEW[0m in 0.39s]
+[2026-02-26T06:35:18.496+0000] {subprocess.py:93} INFO - [0m06:35:18  3 of 14 START sql view model olist_staging.stg_geolocation ..................... [RUN]
+[2026-02-26T06:35:18.527+0000] {subprocess.py:93} INFO - [0m06:35:18  1 of 14 OK created sql table model olist_staging.dim_date ...................... [[32mSELECT 1096[0m in 0.44s]
+[2026-02-26T06:35:18.535+0000] {subprocess.py:93} INFO - [0m06:35:18  4 of 14 START sql view model olist_staging.stg_order_items ..................... [RUN]
+[2026-02-26T06:35:18.628+0000] {subprocess.py:93} INFO - [0m06:35:18  3 of 14 OK created sql view model olist_staging.stg_geolocation ................ [[32mCREATE VIEW[0m in 0.12s]
+[2026-02-26T06:35:18.631+0000] {subprocess.py:93} INFO - [0m06:35:18  5 of 14 START sql view model olist_staging.stg_order_payments .................. [RUN]
+[2026-02-26T06:35:18.652+0000] {subprocess.py:93} INFO - [0m06:35:18  4 of 14 OK created sql view model olist_staging.stg_order_items ................ [[32mCREATE VIEW[0m in 0.11s]
+[2026-02-26T06:35:18.656+0000] {subprocess.py:93} INFO - [0m06:35:18  6 of 14 START sql view model olist_staging.stg_order_reviews ................... [RUN]
+[2026-02-26T06:35:18.742+0000] {subprocess.py:93} INFO - [0m06:35:18  5 of 14 OK created sql view model olist_staging.stg_order_payments ............. [[32mCREATE VIEW[0m in 0.10s]
+[2026-02-26T06:35:18.756+0000] {subprocess.py:93} INFO - [0m06:35:18  7 of 14 START sql view model olist_staging.stg_orders .......................... [RUN]
+[2026-02-26T06:35:18.788+0000] {subprocess.py:93} INFO - [0m06:35:18  6 of 14 OK created sql view model olist_staging.stg_order_reviews .............. [[32mCREATE VIEW[0m in 0.13s]
+[2026-02-26T06:35:18.799+0000] {subprocess.py:93} INFO - [0m06:35:18  8 of 14 START sql view model olist_staging.stg_product_category_translation .... [RUN]
+[2026-02-26T06:35:18.875+0000] {subprocess.py:93} INFO - [0m06:35:18  7 of 14 OK created sql view model olist_staging.stg_orders ..................... [[32mCREATE VIEW[0m in 0.12s]
+[2026-02-26T06:35:18.882+0000] {subprocess.py:93} INFO - [0m06:35:18  9 of 14 START sql view model olist_staging.stg_products ........................ [RUN]
+[2026-02-26T06:35:18.903+0000] {subprocess.py:93} INFO - [0m06:35:18  8 of 14 OK created sql view model olist_staging.stg_product_category_translation  [[32mCREATE VIEW[0m in 0.10s]
+[2026-02-26T06:35:18.907+0000] {subprocess.py:93} INFO - [0m06:35:18  10 of 14 START sql view model olist_staging.stg_sellers ........................ [RUN]
+[2026-02-26T06:35:18.979+0000] {subprocess.py:93} INFO - [0m06:35:18  9 of 14 OK created sql view model olist_staging.stg_products ................... [[32mCREATE VIEW[0m in 0.09s]
+[2026-02-26T06:35:18.985+0000] {subprocess.py:93} INFO - [0m06:35:18  11 of 14 START sql table model olist_staging.dim_customers ..................... [RUN]
+[2026-02-26T06:35:19.006+0000] {subprocess.py:93} INFO - [0m06:35:19  10 of 14 OK created sql view model olist_staging.stg_sellers ................... [[32mCREATE VIEW[0m in 0.10s]
+[2026-02-26T06:35:19.016+0000] {subprocess.py:93} INFO - [0m06:35:19  12 of 14 START sql table model olist_staging.dim_products ...................... [RUN]
+[2026-02-26T06:35:19.236+0000] {subprocess.py:93} INFO - [0m06:35:19  12 of 14 OK created sql table model olist_staging.dim_products ................. [[32mSELECT 32951[0m in 0.22s]
+[2026-02-26T06:35:19.240+0000] {subprocess.py:93} INFO - [0m06:35:19  13 of 14 START sql table model olist_staging.dim_sellers ....................... [RUN]
+[2026-02-26T06:35:19.411+0000] {subprocess.py:93} INFO - [0m06:35:19  13 of 14 OK created sql table model olist_staging.dim_sellers .................. [[32mSELECT 3095[0m in 0.17s]
+[2026-02-26T06:35:19.433+0000] {subprocess.py:93} INFO - [0m06:35:19  11 of 14 OK created sql table model olist_staging.dim_customers ................ [[32mSELECT 96096[0m in 0.44s]
+[2026-02-26T06:35:19.437+0000] {subprocess.py:93} INFO - [0m06:35:19  14 of 14 START sql table model olist_staging.fact_order_items .................. [RUN]
+[2026-02-26T06:35:22.987+0000] {subprocess.py:93} INFO - [0m06:35:22  14 of 14 OK created sql table model olist_staging.fact_order_items ............. [[32mSELECT 112650[0m in 3.55s]
+[2026-02-26T06:35:23.007+0000] {subprocess.py:93} INFO - [0m06:35:23
+[2026-02-26T06:35:23.007+0000] {subprocess.py:93} INFO - [0m06:35:23  Finished running 9 view models, 5 table models in 0 hours 0 minutes and 5.03 seconds (5.03s).
+[2026-02-26T06:35:23.062+0000] {subprocess.py:93} INFO - [0m06:35:23
+[2026-02-26T06:35:23.064+0000] {subprocess.py:93} INFO - [0m06:35:23  [32mCompleted successfully[0m
+[2026-02-26T06:35:23.065+0000] {subprocess.py:93} INFO - [0m06:35:23
+[2026-02-26T06:35:23.066+0000] {subprocess.py:93} INFO - [0m06:35:23  Done. PASS=14 WARN=0 ERROR=0 SKIP=0 TOTAL=14
+[2026-02-26T06:35:24.326+0000] {subprocess.py:97} INFO - Command exited with return code 0
+[2026-02-26T06:35:24.348+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=olist_pipeline_dag, task_id=dbt_run, execution_date=20260226T063426, start_date=20260226T063513, end_date=20260226T063524
+[2026-02-26T06:35:24.368+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-02-26T06:35:24.384+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check
