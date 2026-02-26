@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres-br
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  airflow-webserver:
+    build: ./airflow
+    container_name: airflow-webserver-br
+    depends_on:
+      - postgres
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__LOGGING__REMOTE_LOGGING=False
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./datasets:/opt/airflow/datasets
+      - ./airflow/logs:/opt/airflow/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8081:8080"
+    command: webserver
+
+  airflow-scheduler:
+    build: ./airflow
+    container_name: airflow-scheduler-br
+    depends_on:
+      - airflow-webserver
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__LOGGING__REMOTE_LOGGING=False
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./datasets:/opt/airflow/datasets
+      - ./airflow/logs:/opt/airflow/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: scheduler
+
+  python-app:
+    build:
+      context: ./scripts
+    container_name: python-br
+    depends_on:
+      - postgres
+    volumes:
+      - ./datasets:/app/datasets
+    restart: on-failure
+
+  dbt:
+    image: ghcr.io/dbt-labs/dbt-postgres:1.7.6
+    container_name: dbt-br
+    working_dir: /usr/app/olist
+    volumes:
+      - ./dbt:/usr/app/olist
+      - ./dbt/profiles.yml:/root/.dbt/profiles.yml
+    depends_on:
+      - postgres
+    entrypoint: ["tail", "-f", "/dev/null"]
+    restart: unless-stopped
+
+
+volumes:
+  postgres_data:
