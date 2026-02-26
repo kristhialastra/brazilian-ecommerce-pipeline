@@ -7,6 +7,7 @@ Should be triggered manually after olist_ingestion_dag has loaded raw data.
 DAG tasks (run in order):
   1. dbt_seed  - loads any seed CSV files from dbt/seeds/ into olist_staging
   2. dbt_run   - builds all staging, dim, and fact models
+  3. dbt_test  - runs all dbt tests across every model
 
 dbt commands run inside the persistent dbt-br container via docker exec.
 The dbt project lives at /usr/app/olist inside that container.
@@ -62,4 +63,9 @@ with DAG(
         bash_command=dbt_cmd("run"),
     )
 
-    dbt_seed >> dbt_run
+    dbt_test = BashOperator(
+        task_id="dbt_test",
+        bash_command=dbt_cmd("test"),
+    )
+
+    dbt_seed >> dbt_run >> dbt_test
