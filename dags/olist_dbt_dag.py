@@ -5,6 +5,7 @@ Airflow DAG that orchestrates dbt transformation tasks for the Olist pipeline.
 Should be triggered manually after olist_ingestion_dag has loaded raw data.
 
 DAG tasks (run in order):
+  0. wait_for_ingestion - waits for olist_ingestion_dag to complete
   1. dbt_seed  - loads any seed CSV files from dbt/seeds/ into olist_staging
   2. dbt_run   - builds all staging, dim, and fact models
   3. dbt_test  - runs all dbt tests across every model
@@ -15,6 +16,7 @@ The dbt project lives at /usr/app/olist inside that container.
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+from airflow.sensors.external_task import ExternalTaskSensor
 from datetime import datetime
 
 # ---------------------------------------------------------------------------
@@ -48,10 +50,19 @@ default_args = {
 with DAG(
     dag_id="olist_dbt_dag",
     default_args=default_args,
-    schedule=None,
+    schedule="@daily",
     description="Orchestrate dbt transformations for the Olist pipeline",
     tags=["olist", "dbt"],
 ) as dag:
+
+    wait_for_ingestion = ExternalTaskSensor(
+        task_id="wait_for_ingestion",
+        external_dag_id="olist_ingestion_dag",
+        external_task_id="validate_row_counts",
+        mode="reschedule",
+        timeout=3600,
+        poke_interval=60,
+    )
 
     dbt_seed = BashOperator(
         task_id="dbt_seed",
@@ -68,4 +79,4 @@ with DAG(
         bash_command=dbt_cmd("test"),
     )
 
-    dbt_seed >> dbt_run >> dbt_test
+    wait_for_ingestion >> dbt_seed >> dbt_run >> dbt_test

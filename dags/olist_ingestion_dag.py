@@ -182,7 +182,7 @@ default_args = {
 with DAG(
     dag_id='olist_ingestion_dag',
     default_args=default_args,
-    schedule=None,          # triggered manually from the Airflow UI
+    schedule="@daily",
     description='Load Olist CSV files into PostgreSQL olist_raw schema',
     tags=['olist', 'ingestion'],
 ) as dag:
