@@ -1,0 +1,12 @@
+olist_pipeline:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: postgres        # Docker-internal service name (not localhost)
+      user: airflow
+      password: airflow
+      port: 5432            # internal Docker port (not 5433)
+      dbname: airflow
+      schema: olist_staging # all dbt output tables/views land in this schema
+      threads: 2

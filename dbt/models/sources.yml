@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  - name: olist_raw
+    description: >
+      Raw Olist Brazilian E-commerce tables loaded from CSV files into
+      the olist_raw PostgreSQL schema via the olist_ingestion_dag Airflow DAG.
+    schema: olist_raw
+    tables:
+      - name: orders
+        description: One row per order. Central table linking customers to their purchases.
+
+      - name: order_items
+        description: One row per item within an order. Links orders to products and sellers.
+
+      - name: order_payments
+        description: One row per payment attempt on an order. An order can have multiple payment methods.
+
+      - name: order_reviews
+        description: Customer reviews submitted after order delivery.
+
+      - name: customers
+        description: Customer registry. customer_unique_id identifies a real person across multiple orders.
+
+      - name: sellers
+        description: Seller registry with location information.
+
+      - name: products
+        description: Product catalog with physical dimensions and category names in Portuguese.
+
+      - name: geolocation
+        description: Zip code to latitude/longitude mapping. Can have multiple coordinates per zip code.
+
+      - name: product_category_name_translation
+        description: Translates Portuguese product category names to English.
