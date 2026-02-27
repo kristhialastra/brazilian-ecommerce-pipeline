@@ -3,7 +3,9 @@
 End-to-end data pipeline that ingests raw CSV data from the [Olist Brazilian E-Commerce dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce), loads it into PostgreSQL, transforms it into a star schema using dbt, and orchestrates the entire flow with Apache Airflow.
 
 Created by: [kristhiacayle](https://github.com/kristhiacayle)
+
 Submitted to: [jgvillanuevastratpoint](https://github.com/jgvillanuevastratpoint)
+
 Submission Date: February 27, 2026
 
 ## Project Structure
@@ -44,7 +46,8 @@ brazilian-ecommerce-pipeline/
 ```
 
 ## Architecture and Pipeline Flow
-![alt text](docs\diagrams\system_architecture.png)
+![My First Board (6)](https://github.com/user-attachments/assets/19e4f484-ad97-44e9-b369-40d1c4150309)
+
 
 ### Airflow DAG
 
@@ -66,7 +69,8 @@ create_raw_schema → load_csv_files → validate_row_counts → dbt_seed → db
 Schedule: `@daily` with `catchup=False`.
 
 ## Star Schema
-![alt text](docs\diagrams\star_schema.png)
+![My First Board (3)](https://github.com/user-attachments/assets/8ba0b74b-c22e-4cf8-a19d-bdc41d9861f3)
+
 
 ## dbt Models
 
