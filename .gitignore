@@ -1,0 +1,16 @@
+# Airflow logs (runtime artifacts, not source code)
+airflow/logs/dag_id=*/
+airflow/logs/dag_processor_manager/
+airflow/logs/scheduler/
+
+# Python cache
+dags/__pycache__/
+**/__pycache__/
+**/*.pyc
+
+# dbt runtime files
+dbt/.user.yml
+
+# Keep docs/screenshots (intentionally tracked)
+!docs/
+!docs/screenshots/

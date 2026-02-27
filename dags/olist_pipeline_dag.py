@@ -1,17 +1,16 @@
 """
-olist_ingestion_dag.py
-----------------------
-Airflow DAG that loads the Olist Brazilian E-commerce CSV files from the
-shared datasets directory into a dedicated `olist_raw` schema in PostgreSQL.
+olist_pipeline_dag.py
+---------------------
+Single Airflow DAG that orchestrates the entire Olist pipeline end-to-end:
+  1. create_raw_schema   - ensures olist_raw schema exists in PostgreSQL
+  2. load_csv_files      - reads all 9 Olist CSVs and bulk-loads into olist_raw
+  3. validate_row_counts - queries each table and logs its row count
+  4. dbt_seed            - loads seed CSV files into olist_staging
+  5. dbt_run             - builds all staging, dim, and fact models
+  6. dbt_test            - runs all dbt tests
 
-DAG tasks (run in order):
-  1. create_raw_schema   - ensures the olist_raw schema exists in Postgres
-  2. load_csv_files      - reads each CSV with pandas and bulk-loads it into Postgres
-  3. validate_row_counts - queries each loaded table and logs its row count
-
-CSV files are read from the Airflow datasets volume:
-  /opt/airflow/datasets/olist/
-  (on host: data-engineering-bootcamp/airflow/datasets/olist/)
+Ingestion tasks use PythonOperator with pandas + SQLAlchemy.
+dbt tasks use BashOperator to run dbt directly inside the Airflow container.
 """
 
 import glob
@@ -21,15 +20,15 @@ import os
 import pandas as pd
 import psycopg2
 from airflow import DAG
+from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime
 from sqlalchemy import create_engine, text
 
 # ---------------------------------------------------------------------------
-# Configuration — matches the running postgres-lab container
+# PostgreSQL config — matches the postgres-br container
 # ---------------------------------------------------------------------------
 
-# psycopg2 uses the Docker-internal hostname 'postgres' and port 5432
 DB_PARAMS = {
     'host': 'postgres',
     'port': 5432,
@@ -38,17 +37,30 @@ DB_PARAMS = {
     'password': 'airflow',
 }
 
-# SQLAlchemy connection string — used by pandas.to_sql() for bulk loading
 DB_CONN_STRING = "postgresql+psycopg2://airflow:airflow@postgres:5432/airflow"
 
-# Path inside the Airflow container where CSV files are mounted
-CSV_DIR = '/opt/airflow/datasets/olist'
-
-# The PostgreSQL schema where all raw Olist tables will land
+CSV_DIR = '/opt/airflow/datasets'
 RAW_SCHEMA = 'olist_raw'
 
 # ---------------------------------------------------------------------------
-# Helper function
+# dbt config — runs directly inside the Airflow container
+# ---------------------------------------------------------------------------
+
+DBT_PROJECT_DIR = "/opt/airflow/dbt"
+DBT_PROFILES_DIR = "/opt/airflow/dbt"
+
+
+def dbt_cmd(subcommand: str) -> str:
+    """Build a dbt command to run inside the Airflow container."""
+    return (
+        f"dbt {subcommand} "
+        f"--project-dir {DBT_PROJECT_DIR} "
+        f"--profiles-dir {DBT_PROFILES_DIR}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Ingestion helper
 # ---------------------------------------------------------------------------
 
 def csv_to_table_name(filepath: str) -> str:
@@ -67,21 +79,22 @@ def csv_to_table_name(filepath: str) -> str:
         name = name[: -len('_dataset')]
     return name
 
+
 # ---------------------------------------------------------------------------
-# Task 1 callable
+# Task callables
 # ---------------------------------------------------------------------------
 
 def create_raw_schema():
-    """
-    Creates the olist_raw schema in PostgreSQL if it does not already exist.
-    Uses psycopg2 directly — no pandas needed for a single SQL statement.
-    IF NOT EXISTS makes this safe to re-run.
+    """Create olist_raw schema if it does not exist.
+    Also drops olist_staging (CASCADE) so raw tables can be replaced
+    without 'dependent objects still exist' errors. dbt_run rebuilds it.
     """
     log = logging.getLogger(__name__)
-    log.info("Creating schema '%s' if it does not exist...", RAW_SCHEMA)
 
     conn = psycopg2.connect(**DB_PARAMS)
     cur = conn.cursor()
+    cur.execute("DROP SCHEMA IF EXISTS olist_staging CASCADE;")
+    log.info("Dropped olist_staging schema (will be rebuilt by dbt_run).")
     cur.execute(f"CREATE SCHEMA IF NOT EXISTS {RAW_SCHEMA};")
     conn.commit()
     cur.close()
@@ -89,17 +102,9 @@ def create_raw_schema():
 
     log.info("Schema '%s' is ready.", RAW_SCHEMA)
 
-# ---------------------------------------------------------------------------
-# Task 2 callable
-# ---------------------------------------------------------------------------
 
 def load_csv_files():
-    """
-    Reads every CSV in CSV_DIR with pandas and bulk-loads it into olist_raw.
-
-    if_exists='replace' drops and recreates each table on every run,
-    which makes the DAG idempotent (re-running it won't duplicate rows).
-    """
+    """Read every CSV in CSV_DIR and bulk-load into olist_raw (replace mode)."""
     log = logging.getLogger(__name__)
     engine = create_engine(DB_CONN_STRING)
 
@@ -108,8 +113,7 @@ def load_csv_files():
     if not csv_files:
         raise FileNotFoundError(
             f"No CSV files found in '{CSV_DIR}'. "
-            "Make sure the Olist CSVs are in "
-            "data-engineering-bootcamp/airflow/datasets/olist/"
+            "Make sure the Olist CSVs are in the datasets/olist/ volume."
         )
 
     log.info("Found %d CSV file(s) to load.", len(csv_files))
@@ -121,15 +125,14 @@ def load_csv_files():
             os.path.basename(csv_path), RAW_SCHEMA, table_name
         )
 
-        # low_memory=False suppresses dtype-guessing warnings on large files
         df = pd.read_csv(csv_path, low_memory=False)
 
         df.to_sql(
             name=table_name,
             con=engine,
             schema=RAW_SCHEMA,
-            if_exists='replace',  # drop + recreate on each run (idempotent)
-            index=False,          # don't write the DataFrame index as a DB column
+            if_exists='replace',
+            index=False,
         )
 
         log.info("  Loaded %s rows into %s.%s", f"{len(df):,}", RAW_SCHEMA, table_name)
@@ -137,15 +140,9 @@ def load_csv_files():
     engine.dispose()
     log.info("All %d CSV file(s) loaded successfully.", len(csv_files))
 
-# ---------------------------------------------------------------------------
-# Task 3 callable
-# ---------------------------------------------------------------------------
 
 def validate_row_counts():
-    """
-    Queries each table in olist_raw and logs its row count.
-    A count of 0 or a missing table signals that Task 2 failed silently.
-    """
+    """Query each table in olist_raw and log its row count."""
     log = logging.getLogger(__name__)
     engine = create_engine(DB_CONN_STRING)
 
@@ -170,22 +167,21 @@ def validate_row_counts():
 
     engine.dispose()
 
+
 # ---------------------------------------------------------------------------
 # DAG definition
 # ---------------------------------------------------------------------------
 
-default_args = {
-    'start_date': datetime(2024, 1, 1),
-    'catchup': False,
-}
-
 with DAG(
-    dag_id='olist_ingestion_dag',
-    default_args=default_args,
-    schedule="@daily",
-    description='Load Olist CSV files into PostgreSQL olist_raw schema',
-    tags=['olist', 'ingestion'],
+    dag_id='olist_pipeline_dag',
+    start_date=datetime(2024, 1, 1),
+    schedule='@daily',
+    catchup=False,
+    description='End-to-end Olist pipeline: CSV ingestion → dbt transformations',
+    tags=['olist', 'ingestion', 'dbt'],
 ) as dag:
+
+    # --- Ingestion tasks ---
 
     create_schema_task = PythonOperator(
         task_id='create_raw_schema',
@@ -202,5 +198,23 @@ with DAG(
         python_callable=validate_row_counts,
     )
 
-    # Arrow syntax defines the execution order: schema -> load -> validate
-    create_schema_task >> load_task >> validate_task
+    # --- dbt tasks ---
+
+    dbt_seed = BashOperator(
+        task_id='dbt_seed',
+        bash_command=dbt_cmd('seed'),
+    )
+
+    dbt_run = BashOperator(
+        task_id='dbt_run',
+        bash_command=dbt_cmd('run'),
+    )
+
+    dbt_test = BashOperator(
+        task_id='dbt_test',
+        bash_command=dbt_cmd('test'),
+    )
+
+    # --- Pipeline chain ---
+
+    create_schema_task >> load_task >> validate_task >> dbt_seed >> dbt_run >> dbt_test

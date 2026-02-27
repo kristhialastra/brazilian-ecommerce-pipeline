@@ -25,8 +25,8 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - ./datasets:/opt/airflow/datasets
+      - ./dbt:/opt/airflow/dbt
       - ./airflow/logs:/opt/airflow/logs
-      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8081:8080"
     command: webserver
@@ -43,8 +43,8 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - ./datasets:/opt/airflow/datasets
+      - ./dbt:/opt/airflow/dbt
       - ./airflow/logs:/opt/airflow/logs
-      - /var/run/docker.sock:/var/run/docker.sock
     command: scheduler
 
   python-app:
