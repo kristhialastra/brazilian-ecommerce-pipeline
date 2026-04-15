@@ -28,7 +28,6 @@ customers as (
 ),
 
 payments_agg as (
-
     -- Collapse multiple payment rows per order into a single total + primary type.
     -- primary_payment_type = the payment method used for the first sequential charge.
     select
@@ -37,11 +36,9 @@ payments_agg as (
         max(case when payment_sequential = 1 then payment_type end)    as primary_payment_type
     from {{ ref('stg_order_payments') }}
     group by order_id
-
 ),
 
 reviews_deduped as (
-
     -- A small number of orders have more than one review row.
     -- We keep only the most recently created review per order.
     select distinct on (order_id)
@@ -49,7 +46,6 @@ reviews_deduped as (
         review_score
     from {{ ref('stg_order_reviews') }}
     order by order_id, review_creation_date desc
-
 ),
 
 customer_keys as (

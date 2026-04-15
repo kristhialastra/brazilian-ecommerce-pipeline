@@ -55,7 +55,11 @@ services:
       - postgres
     volumes:
       - ./datasets:/app/datasets
-    restart: on-failure
+      - ./notebooks:/app/notebooks
+    ports:
+      - "8888:8888"
+    entrypoint: ["tail", "-f", "/dev/null"]
+    restart: unless-stopped
 
   dbt:
     image: ghcr.io/dbt-labs/dbt-postgres:1.7.6
